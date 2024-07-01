@@ -3,21 +3,24 @@
 import { useState, useEffect } from 'react';
 import {
   Connection,
-  Transaction,
   SystemProgram,
   LAMPORTS_PER_SOL,
   PublicKey,
 } from '@solana/web3.js';
 import { useWallet, WalletContextState } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { Program, AnchorProvider, BN } from '@project-serum/anchor';
 import Image from 'next/image';
 import Link from 'next/link';
 import '@solana/wallet-adapter-react-ui/styles.css';
 import './globals.css';
 import { supabase } from '../lib/supabaseClient';
+import idl from '../idl/idl.json';
+
+const programID = new PublicKey("AdtugN1JEE4esw19izQHVMGWvamDJs3oMHtjFwrcyBMD");
 
 export default function Home() {
-  const { publicKey, signTransaction }: WalletContextState = useWallet();
+  const { publicKey, signTransaction, sendTransaction }: WalletContextState = useWallet();
   const [amount, setAmount] = useState('');
   const [buyNowMessage, setBuyNowMessage] = useState<string>('');
   const [submitMessage, setSubmitMessage] = useState<string>('');
@@ -124,27 +127,19 @@ export default function Home() {
 
     try {
       const connection = new Connection(rpcEndpoint, 'confirmed');
-      const transaction = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: publicKey,
-          toPubkey: new PublicKey(recipient),
-          lamports: parseFloat(amount) * LAMPORTS_PER_SOL,
-        })
-      );
+      const provider = new AnchorProvider(connection, window.solana, AnchorProvider.defaultOptions());
+      const program = new Program(idl, programID, provider);
 
-      const { blockhash } = await connection.getRecentBlockhash();
-      transaction.recentBlockhash = blockhash;
-      transaction.feePayer = publicKey;
+      const tx = await program.rpc.sendSol(new BN(parseFloat(amount) * LAMPORTS_PER_SOL), {
+        accounts: {
+          user: publicKey,
+          staticAddress: new PublicKey(recipient),
+          systemProgram: SystemProgram.programId,
+        },
+      });
 
-      if (signTransaction) {
-        const signedTransaction = await signTransaction(transaction);
-        const signature = await connection.sendRawTransaction(signedTransaction.serialize());
-        await connection.confirmTransaction(signature, 'confirmed');
-        setBuyNowMessage(`Transaction successful: ${signature}`);
-        fetchBalance();
-      } else {
-        setBuyNowMessage("Please connect your wallet first.");
-      }
+      setBuyNowMessage(`Transaction successful: ${tx}`);
+      fetchBalance();
     } catch (error: any) {
       setBuyNowMessage(`Transaction failed: ${error.message}`);
     }
@@ -236,7 +231,7 @@ export default function Home() {
             className="px-4 py-2 border-black border-2 rounded-md w-full bg-purple-600 text-white text-center"
           />
           <div className="flex justify-center">
-          <button
+            <button
               onClick={handleClick}
               className="px-4 py-2 bg-purple-700 text-white rounded-full w-2/5 font-runes"
               style={{ fontSize: '150%' }}
